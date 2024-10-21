@@ -16,7 +16,7 @@ RUN install-php-extensions \
         redis \
         sockets \
         zip \
-    && apk add --no-cache fcgi tini
+    && apk add --no-cache fcgi
 
 COPY --from=composer:2 /usr/bin/composer /usr/local/bin/composer
 COPY rootfs/ /
@@ -26,7 +26,6 @@ ENV COMPOSER_ALLOW_SUPERUSER=1 \
     PHP_MEMORY_LIMIT=256M
 
 WORKDIR /app
-ENTRYPOINT ["/sbin/tini", "--", "docker-php-entrypoint"]
 
 FROM base AS prod
 USER www-data
