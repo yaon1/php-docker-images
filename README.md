@@ -1,47 +1,33 @@
 # php-docker-images
 
-Production-ready PHP images on Alpine for **PHP 8.2 / 8.3 / 8.4**, `fpm` and `cli`, `amd64` and `arm64`.
-Rebuilt weekly and scanned with Trivy.
+**Готовые production-образы PHP, чтобы не собирать Dockerfile с расширениями в каждом проекте заново.** Внутри набор расширений, который нужен почти любому Laravel/Symfony-приложению, Composer, healthcheck для FPM и настройки через переменные окружения. Один образ подходит и для dev, и для prod.
 
-```bash
-docker pull ghcr.io/yaon1/php-docker-images:8.4-fpm       # production
-docker pull ghcr.io/yaon1/php-docker-images:8.4-fpm-dev   # + Xdebug, php.ini-development
-```
+- PHP **8.2 / 8.3 / 8.4**, варианты `fpm` и `cli`, архитектуры `amd64` и `arm64`.
+- Еженедельная пересборка: свежие патчи безопасности из upstream.
+- Сканирование Trivy в CI, результаты в GitHub Security.
 
-## What's inside
-
-| | prod | dev |
-|---|---|---|
-| Extensions | bcmath, intl, opcache (JIT), pcntl, pdo_mysql, pdo_pgsql, redis, sockets, zip | same + xdebug |
-| Composer 2 | ✓ | ✓ |
-| User | `www-data` | `root` |
-| OPcache timestamps | off | on |
-| `php-fpm-healthcheck` | ✓ | ✓ |
-
-## Configuration through env
-
-| Variable | prod default | dev default |
-|---|---|---|
-| `PHP_MEMORY_LIMIT` | `256M` | `256M` |
-| `PHP_OPCACHE_VALIDATE_TIMESTAMPS` | `0` | `1` |
-| `XDEBUG_MODE` | — | `off` (set `debug`, `coverage`, …) |
-
-## Healthcheck
-
-FPM images expose `/ping` and `/status`:
+## Пример использования
 
 ```yaml
+# docker-compose.yml
 services:
   app:
     image: ghcr.io/yaon1/php-docker-images:8.4-fpm
+    volumes: ['./:/app']
+    environment:
+      PHP_MEMORY_LIMIT: 512M
     healthcheck:
       test: php-fpm-healthcheck
       interval: 10s
 ```
 
-`/status` works out of the box with [php-fpm-exporter](https://github.com/yaon1/php-fpm-exporter).
+Для разработки, с Xdebug и `php.ini-development`:
 
-## Extending
+```bash
+docker run --rm -it -e XDEBUG_MODE=debug -v "$PWD:/app" ghcr.io/yaon1/php-docker-images:8.4-cli-dev php artisan test
+```
+
+Добавить своё расширение:
 
 ```dockerfile
 FROM ghcr.io/yaon1/php-docker-images:8.4-fpm
@@ -51,13 +37,33 @@ USER www-data
 COPY --chown=www-data . /app
 ```
 
-## Building locally
+## Что внутри
+
+| | prod | dev |
+|---|---|---|
+| Расширения | bcmath, intl, opcache (JIT), pcntl, pdo_mysql, pdo_pgsql, redis, sockets, zip | то же + xdebug |
+| Composer 2 | ✓ | ✓ |
+| Пользователь | `www-data` | `root` |
+| Проверка timestamps в OPcache | выкл | вкл |
+| `php-fpm-healthcheck` | ✓ | ✓ |
+
+FPM-образы отдают `/ping` и `/status`. `/status` сразу работает с [php-fpm-exporter](https://github.com/yaon1/php-fpm-exporter).
+
+## Переменные окружения
+
+| Переменная | prod | dev |
+|---|---|---|
+| `PHP_MEMORY_LIMIT` | `256M` | `256M` |
+| `PHP_OPCACHE_VALIDATE_TIMESTAMPS` | `0` | `1` |
+| `XDEBUG_MODE` | — | `off` (`debug`, `coverage`, …) |
+
+## Локальная сборка и тесты
 
 ```bash
 docker build --build-arg PHP_VERSION=8.3 --build-arg VARIANT=cli --target dev -t php:8.3-cli-dev .
 tests/run.sh php:8.3-cli-dev cli dev
 ```
 
-## License
+## Лицензия
 
 MIT
