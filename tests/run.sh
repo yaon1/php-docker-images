@@ -2,7 +2,8 @@
 # Usage: tests/run.sh <image> <variant: fpm|cli> <target: prod|dev>
 set -eu
 IMAGE=$1 VARIANT=$2 TARGET=$3
-fail() { echo "FAIL: $*" >&2; exit 1; }
+# shellcheck source=tests/lib.sh
+. "$(dirname "$0")/lib.sh"
 
 modules=$(docker run --rm --entrypoint php "$IMAGE" -m)
 for ext in bcmath intl pcntl pdo_mysql pdo_pgsql redis sockets zip "Zend OPcache"; do
@@ -17,8 +18,7 @@ else
 fi
 
 docker run --rm --entrypoint composer "$IMAGE" --version >/dev/null || fail "composer missing"
-docker run --rm -e PHP_MEMORY_LIMIT=64M --entrypoint php "$IMAGE" -r 'exit(ini_get("memory_limit") === "64M" ? 0 : 1);' \
-    || fail "PHP_MEMORY_LIMIT not applied"
+ini_is PHP_MEMORY_LIMIT=64M memory_limit 64M
 
 if [ "$VARIANT" = fpm ]; then
     cid=$(docker run -d "$IMAGE")
