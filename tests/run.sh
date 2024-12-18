@@ -19,6 +19,8 @@ fi
 
 docker run --rm --entrypoint composer "$IMAGE" --version >/dev/null || fail "composer missing"
 ini_is PHP_MEMORY_LIMIT=64M memory_limit 64M
+ini_default upload_max_filesize 32M
+ini_is PHP_UPLOAD_MAX_FILESIZE=100M upload_max_filesize 100M
 
 if [ "$VARIANT" = fpm ]; then
     cid=$(docker run -d "$IMAGE")
