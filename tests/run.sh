@@ -19,6 +19,12 @@ fi
 
 docker run --rm --entrypoint composer "$IMAGE" --version >/dev/null || fail "composer missing"
 ini_is PHP_MEMORY_LIMIT=64M memory_limit 64M
+ini_default max_input_vars 1000
+ini_is PHP_MAX_INPUT_VARS=5000 max_input_vars 5000
+ini_default date.timezone UTC
+ini_is PHP_DATE_TIMEZONE=Europe/Moscow date.timezone Europe/Moscow
+fpm_ini_is "" max_execution_time 30
+fpm_ini_is PHP_MAX_EXECUTION_TIME=120 max_execution_time 120
 ini_default post_max_size 32M
 ini_is PHP_POST_MAX_SIZE=100M post_max_size 100M
 ini_default upload_max_filesize 32M
