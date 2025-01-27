@@ -19,6 +19,8 @@ fi
 
 docker run --rm --entrypoint composer "$IMAGE" --version >/dev/null || fail "composer missing"
 ini_is PHP_MEMORY_LIMIT=64M memory_limit 64M
+fpm_conf_is "" pm dynamic
+fpm_conf_is FPM_PM=ondemand pm ondemand
 ini_default max_input_vars 1000
 ini_is PHP_MAX_INPUT_VARS=5000 max_input_vars 5000
 ini_default date.timezone UTC
