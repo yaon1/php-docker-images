@@ -19,6 +19,10 @@ fi
 
 docker run --rm --entrypoint composer "$IMAGE" --version >/dev/null || fail "composer missing"
 ini_is PHP_MEMORY_LIMIT=64M memory_limit 64M
+fpm_conf_is "" listen 9000
+fpm_conf_is FPM_LISTEN=/run/php/fpm.sock listen /run/php/fpm.sock
+fpm_conf_is "" request_slowlog_timeout 0s
+fpm_conf_is FPM_SLOWLOG_TIMEOUT=5s request_slowlog_timeout 5s
 fpm_conf_is "" request_terminate_timeout 60s
 fpm_conf_is FPM_REQUEST_TERMINATE_TIMEOUT=30s request_terminate_timeout 30s
 fpm_conf_is "" pm.max_requests 500
@@ -36,6 +40,7 @@ fpm_conf_is FPM_PM_START_SERVERS=3 pm.start_servers 3
 fpm_conf_is "" pm.max_children 10
 fpm_conf_is FPM_PM_MAX_CHILDREN=32 pm.max_children 32
 fpm_conf_is "" pm dynamic
+fpm_conf_is "" catch_workers_output yes
 fpm_conf_is FPM_PM=ondemand pm ondemand
 ini_default max_input_vars 1000
 ini_is PHP_MAX_INPUT_VARS=5000 max_input_vars 5000

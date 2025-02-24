@@ -20,10 +20,14 @@ RUN install-php-extensions \
 
 COPY --from=composer:2 /usr/bin/composer /usr/local/bin/composer
 COPY rootfs/ /
+# Writable socket directory for FPM_LISTEN=/run/php/fpm.sock setups (nginx in the same pod).
+RUN mkdir -p /run/php && chown www-data:www-data /run/php
 
 ENV COMPOSER_ALLOW_SUPERUSER=1 \
     PHP_OPCACHE_VALIDATE_TIMESTAMPS=0 \
     PHP_MEMORY_LIMIT=256M \
+    FPM_LISTEN=9000 \
+    FPM_SLOWLOG_TIMEOUT=0 \
     FPM_REQUEST_TERMINATE_TIMEOUT=60s \
     FPM_PM_MAX_REQUESTS=500 \
     FPM_REQUEST_TERMINATE_TIMEOUT=60s \
