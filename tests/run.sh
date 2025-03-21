@@ -19,6 +19,8 @@ fi
 
 docker run --rm --entrypoint composer "$IMAGE" --version >/dev/null || fail "composer missing"
 ini_is PHP_MEMORY_LIMIT=64M memory_limit 64M
+ini_default opcache.max_accelerated_files 20000
+ini_is PHP_OPCACHE_MAX_FILES=50000 opcache.max_accelerated_files 50000
 ini_default opcache.memory_consumption 128
 ini_is PHP_OPCACHE_MEMORY=256 opcache.memory_consumption 256
 fpm_conf_is "" listen 9000
