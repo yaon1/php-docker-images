@@ -93,3 +93,12 @@ skipped=$(docker run --rm -e SKIP_ENTRYPOINT_HOOKS=1 -v "$hooks:/docker-entrypoi
 [ "$skipped" = started ] || fail "SKIP_ENTRYPOINT_HOOKS=1 should skip hooks"
 pass "SKIP_ENTRYPOINT_HOOKS skips hooks"
 rm -rf "$hooks"
+
+docker run --rm --entrypoint wait-for "$IMAGE" 127.0.0.1:1 1 2>/dev/null && fail "wait-for should time out on a closed port"
+pass "wait-for times out on closed ports"
+up=$(docker run --rm --entrypoint sh "$IMAGE" -c 'php -S 127.0.0.1:8099 -t /tmp >/dev/null 2>&1 & wait-for 127.0.0.1:8099 5 && echo up')
+[ "$up" = up ] || fail "wait-for should succeed once the port opens"
+pass "wait-for succeeds when the port is open"
+
+docker run --rm -e WAIT_FOR=127.0.0.1:1 -e WAIT_FOR_TIMEOUT=1 "$IMAGE" true 2>/dev/null && fail "WAIT_FOR should block startup"
+pass "WAIT_FOR blocks startup until dependencies are up"

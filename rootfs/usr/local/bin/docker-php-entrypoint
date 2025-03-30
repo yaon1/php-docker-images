@@ -4,8 +4,9 @@
 # A failing hook stops the container, so broken migrations don't serve traffic.
 set -e
 
-if [ -d /docker-entrypoint.d ] && [ "${SKIP_ENTRYPOINT_HOOKS:-0}" != 1 ]; then
-    for hook in /docker-entrypoint.d/*.sh; do
+if [ "${SKIP_ENTRYPOINT_HOOKS:-0}" != 1 ]; then
+    # Built-in hooks (each does nothing unless its env var is set), then the user's.
+    for hook in /usr/local/lib/docker-php/hooks/*.sh /docker-entrypoint.d/*.sh; do
         [ -e "$hook" ] || continue
         echo "entrypoint: running $(basename "$hook")" >&2
         if [ -x "$hook" ]; then "$hook"; else sh "$hook"; fi
