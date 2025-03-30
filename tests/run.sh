@@ -70,3 +70,10 @@ if [ "$VARIANT" = fpm ]; then
 fi
 
 echo "OK $IMAGE"
+
+if [ "$VARIANT" = fpm ]; then
+    out=$(docker run --rm -e PHP_OPCACHE_PRELOAD=/tmp/preload.php --entrypoint sh "$IMAGE" -c \
+        'echo "<?php function preloaded_marker() {}" > /tmp/preload.php && php-fpm -tt >/dev/null 2>&1 && echo ok')
+    [ "$out" = ok ] || fail "FPM should start with a preload script"
+    pass "PHP_OPCACHE_PRELOAD accepted by FPM"
+fi
