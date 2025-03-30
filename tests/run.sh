@@ -77,3 +77,19 @@ if [ "$VARIANT" = fpm ]; then
     [ "$out" = ok ] || fail "FPM should start with a preload script"
     pass "PHP_OPCACHE_PRELOAD accepted by FPM"
 fi
+
+hooks=$(mktemp -d)
+printf '#!/bin/sh\necho hook-one > /tmp/order\n' > "$hooks/10-one.sh"
+printf '#!/bin/sh\necho hook-two >> /tmp/order\n' > "$hooks/20-two.sh"
+chmod +x "$hooks"/*.sh
+order=$(docker run --rm -v "$hooks:/docker-entrypoint.d:ro" "$IMAGE" sh -c 'cat /tmp/order' 2>/dev/null | tr '\n' ' ')
+[ "$order" = "hook-one hook-two " ] || fail "entrypoint hooks should run in order, got '$order'"
+pass "entrypoint hooks run in name order"
+
+printf '#!/bin/sh\nexit 3\n' > "$hooks/30-fail.sh" && chmod +x "$hooks/30-fail.sh"
+if docker run --rm -v "$hooks:/docker-entrypoint.d:ro" "$IMAGE" true 2>/dev/null; then fail "a failing hook must stop the container"; fi
+pass "failing hook stops the container"
+skipped=$(docker run --rm -e SKIP_ENTRYPOINT_HOOKS=1 -v "$hooks:/docker-entrypoint.d:ro" "$IMAGE" echo started 2>/dev/null)
+[ "$skipped" = started ] || fail "SKIP_ENTRYPOINT_HOOKS=1 should skip hooks"
+pass "SKIP_ENTRYPOINT_HOOKS skips hooks"
+rm -rf "$hooks"

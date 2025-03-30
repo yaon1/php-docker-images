@@ -1,0 +1,20 @@
+#!/bin/sh
+# Replaces the upstream entrypoint with the same behaviour plus startup hooks:
+# executable *.sh files in /docker-entrypoint.d run in name order before the command.
+# A failing hook stops the container, so broken migrations don't serve traffic.
+set -e
+
+if [ -d /docker-entrypoint.d ] && [ "${SKIP_ENTRYPOINT_HOOKS:-0}" != 1 ]; then
+    for hook in /docker-entrypoint.d/*.sh; do
+        [ -e "$hook" ] || continue
+        echo "entrypoint: running $(basename "$hook")" >&2
+        if [ -x "$hook" ]; then "$hook"; else sh "$hook"; fi
+    done
+fi
+
+# First arg is `-f` or `--some-option`: pass it to the image's main binary, like upstream.
+if [ "${1#-}" != "$1" ]; then
+    if command -v php-fpm >/dev/null 2>&1; then set -- php-fpm "$@"; else set -- php "$@"; fi
+fi
+
+exec "$@"
