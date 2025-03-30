@@ -1,0 +1,20 @@
+#!/bin/sh
+# Usage: wait-for host:port[,host:port...] [timeout_seconds]
+# Waits until every TCP address accepts connections. Uses PHP sockets, so no nc/curl needed.
+set -eu
+targets=${1:?usage: wait-for host:port[,host:port] [timeout]}
+timeout=${2:-60}
+
+exec php -r '
+[$targets, $timeout] = [explode(",", $argv[1]), (int) $argv[2]];
+$deadline = time() + $timeout;
+foreach ($targets as $target) {
+    [$host, $port] = explode(":", trim($target), 2) + [1 => ""];
+    while (true) {
+        $socket = @fsockopen($host, (int) $port, $errno, $error, 1);
+        if ($socket) { fclose($socket); fwrite(STDERR, "wait-for: $host:$port is up\n"); break; }
+        if (time() >= $deadline) { fwrite(STDERR, "wait-for: gave up on $host:$port after {$timeout}s ($error)\n"); exit(1); }
+        usleep(500000);
+    }
+}
+' "$targets" "$timeout"

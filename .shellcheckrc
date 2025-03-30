@@ -1,0 +1,2 @@
+# PHP snippets passed to `php -r` are meant to stay unexpanded.
+disable=SC2016
