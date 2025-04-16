@@ -102,3 +102,19 @@ pass "wait-for succeeds when the port is open"
 
 docker run --rm -e WAIT_FOR=127.0.0.1:1 -e WAIT_FOR_TIMEOUT=1 "$IMAGE" true 2>/dev/null && fail "WAIT_FOR should block startup"
 pass "WAIT_FOR blocks startup until dependencies are up"
+
+app=$(mktemp -d)
+printf '<?php file_put_contents("/tmp/calls", implode(" ", array_slice($argv, 1)) . "\\n", FILE_APPEND);\n' > "$app/artisan"
+calls=$(docker run --rm -v "$app:/app:ro" -e LARAVEL_MIGRATE=1 -e LARAVEL_OPTIMIZE=1 "$IMAGE" cat /tmp/calls 2>/dev/null | tr '\n' '|')
+[ "$calls" = "migrate --force --no-interaction|optimize --no-interaction|" ] || fail "Laravel hooks ran '$calls'"
+pass "LARAVEL_MIGRATE and LARAVEL_OPTIMIZE run artisan"
+idle=$(docker run --rm -v "$app:/app:ro" "$IMAGE" sh -c 'cat /tmp/calls 2>/dev/null || echo none')
+[ "$idle" = none ] || fail "Laravel hooks must be opt-in"
+pass "Laravel hooks are opt-in"
+
+mkdir -p "$app/bin" && rm "$app/artisan" && cp /dev/null "$app/bin/console"
+printf '<?php file_put_contents("/tmp/calls", implode(" ", array_slice($argv, 1)) . "\\n", FILE_APPEND);\n' > "$app/bin/console"
+calls=$(docker run --rm -v "$app:/app:ro" -e SYMFONY_CACHE_WARMUP=1 "$IMAGE" cat /tmp/calls 2>/dev/null | tr -d '\n')
+[ "$calls" = "cache:warmup --no-interaction" ] || fail "Symfony hook ran '$calls'"
+pass "SYMFONY_CACHE_WARMUP runs cache:warmup"
+rm -rf "$app"
