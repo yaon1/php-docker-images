@@ -20,8 +20,9 @@ jobs:
         php: ['8.2', '8.3', '8.4']
         variant: [fpm, cli]
         target: [prod, dev]
+        distro: [alpine, debian]
     env:
-      TAG: ${{ matrix.php }}-${{ matrix.variant }}${{ matrix.target == 'dev' && '-dev' || '' }}
+      TAG: ${{ matrix.php }}-${{ matrix.variant }}${{ matrix.distro == 'debian' && '-debian' || '' }}${{ matrix.target == 'dev' && '-dev' || '' }}
     steps:
       - uses: actions/checkout@v4
       - uses: docker/setup-qemu-action@v3
@@ -35,6 +36,7 @@ jobs:
           build-args: |
             PHP_VERSION=${{ matrix.php }}
             VARIANT=${{ matrix.variant }}
+            DISTRO_SUFFIX=${{ matrix.distro == 'alpine' && '-alpine' || '' }}
           load: true
           tags: local/php:${{ env.TAG }}
           cache-from: type=gha,scope=${{ env.TAG }}
@@ -72,6 +74,7 @@ jobs:
           build-args: |
             PHP_VERSION=${{ matrix.php }}
             VARIANT=${{ matrix.variant }}
+            DISTRO_SUFFIX=${{ matrix.distro == 'alpine' && '-alpine' || '' }}
           platforms: linux/amd64,linux/arm64
           push: true
           tags: ghcr.io/${{ github.repository }}:${{ env.TAG }}
