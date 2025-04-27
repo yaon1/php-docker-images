@@ -1,8 +1,10 @@
 # syntax=docker/dockerfile:1.7
 ARG PHP_VERSION=8.4
 ARG VARIANT=fpm
+# "-alpine" (small, musl) or "" for the Debian-based upstream image (glibc).
+ARG DISTRO_SUFFIX=-alpine
 
-FROM php:${PHP_VERSION}-${VARIANT}-alpine AS base
+FROM php:${PHP_VERSION}-${VARIANT}${DISTRO_SUFFIX} AS base
 
 COPY --from=mlocati/php-extension-installer:2 /usr/bin/install-php-extensions /usr/local/bin/
 
@@ -16,7 +18,12 @@ RUN install-php-extensions \
         redis \
         sockets \
         zip \
-    && apk add --no-cache fcgi
+    && if command -v apk >/dev/null; then \
+           apk add --no-cache fcgi; \
+       else \
+           apt-get update && apt-get install -y --no-install-recommends libfcgi-bin \
+           && rm -rf /var/lib/apt/lists/*; \
+       fi
 
 COPY --from=composer:2 /usr/bin/composer /usr/local/bin/composer
 COPY rootfs/ /
