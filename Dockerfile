@@ -58,6 +58,8 @@ WORKDIR /app
 
 FROM base AS prod
 USER www-data
+HEALTHCHECK --interval=10s --timeout=3s --start-period=10s \
+    CMD if command -v php-fpm >/dev/null; then php-fpm-healthcheck; else php -v >/dev/null; fi
 
 FROM base AS dev
 ENV PHP_OPCACHE_VALIDATE_TIMESTAMPS=1 \

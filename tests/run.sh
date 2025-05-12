@@ -118,3 +118,8 @@ calls=$(docker run --rm -v "$app:/app:ro" -e SYMFONY_CACHE_WARMUP=1 "$IMAGE" cat
 [ "$calls" = "cache:warmup --no-interaction" ] || fail "Symfony hook ran '$calls'"
 pass "SYMFONY_CACHE_WARMUP runs cache:warmup"
 rm -rf "$app"
+
+if [ "$TARGET" = prod ]; then
+    hc=$(docker inspect --format '{{json .Config.Healthcheck.Test}}' "$IMAGE")
+    case "$hc" in *php-fpm-healthcheck*) pass "image declares a HEALTHCHECK" ;; *) fail "missing HEALTHCHECK, got $hc" ;; esac
+fi
