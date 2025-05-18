@@ -123,3 +123,7 @@ if [ "$TARGET" = prod ]; then
     hc=$(docker inspect --format '{{json .Config.Healthcheck.Test}}' "$IMAGE")
     case "$hc" in *php-fpm-healthcheck*) pass "image declares a HEALTHCHECK" ;; *) fail "missing HEALTHCHECK, got $hc" ;; esac
 fi
+
+src=$(docker inspect --format '{{index .Config.Labels "org.opencontainers.image.source"}}' "$IMAGE")
+[ "$src" = https://github.com/yaon1/php-docker-images ] || fail "missing OCI source label"
+pass "OCI labels present"

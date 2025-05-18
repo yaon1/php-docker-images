@@ -5,6 +5,12 @@ ARG VARIANT=fpm
 ARG DISTRO_SUFFIX=-alpine
 
 FROM php:${PHP_VERSION}-${VARIANT}${DISTRO_SUFFIX} AS base
+ARG PHP_VERSION
+ARG VARIANT
+LABEL org.opencontainers.image.title="php-${VARIANT}" \
+      org.opencontainers.image.description="Production-ready PHP ${PHP_VERSION} ${VARIANT} image with common extensions" \
+      org.opencontainers.image.source="https://github.com/yaon1/php-docker-images" \
+      org.opencontainers.image.licenses="MIT"
 
 COPY --from=mlocati/php-extension-installer:2 /usr/bin/install-php-extensions /usr/local/bin/
 
