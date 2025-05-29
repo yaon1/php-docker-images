@@ -36,7 +36,11 @@ COPY rootfs/ /
 # Writable socket directory for FPM_LISTEN=/run/php/fpm.sock setups (nginx in the same pod).
 RUN mkdir -p /run/php /docker-entrypoint.d && chown www-data:www-data /run/php
 
+# Composer needs a writable home as www-data; keep its cache in a mountable location.
+RUN mkdir -p /app /var/cache/composer /var/www/.composer && chown -R www-data:www-data /var/cache/composer /var/www/.composer /app
 ENV COMPOSER_ALLOW_SUPERUSER=1 \
+    COMPOSER_HOME=/var/www/.composer \
+    COMPOSER_CACHE_DIR=/var/cache/composer \
     PHP_OPCACHE_VALIDATE_TIMESTAMPS=0 \
     PHP_MEMORY_LIMIT=256M \
     PHP_OPCACHE_PRELOAD= \

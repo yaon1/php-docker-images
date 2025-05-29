@@ -127,3 +127,7 @@ fi
 src=$(docker inspect --format '{{index .Config.Labels "org.opencontainers.image.source"}}' "$IMAGE")
 [ "$src" = https://github.com/yaon1/php-docker-images ] || fail "missing OCI source label"
 pass "OCI labels present"
+
+docker run --rm --entrypoint sh "$IMAGE" -c 'cd /tmp && printf "{\"require\":{}}" > composer.json && composer install --no-interaction -q' \
+    || fail "composer install should work as the image user"
+pass "composer install works as the image user"
