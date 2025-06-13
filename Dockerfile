@@ -71,6 +71,13 @@ USER www-data
 HEALTHCHECK --interval=10s --timeout=3s --start-period=10s \
     CMD if command -v php-fpm >/dev/null; then php-fpm-healthcheck; else php -v >/dev/null; fi
 
+# Image processing on top of prod: thumbnails, EXIF orientation, PDF/HEIC via ImageMagick.
+FROM base AS media
+RUN install-php-extensions gd imagick exif
+USER www-data
+HEALTHCHECK --interval=10s --timeout=3s --start-period=10s \
+    CMD if command -v php-fpm >/dev/null; then php-fpm-healthcheck; else php -v >/dev/null; fi
+
 FROM base AS dev
 ENV PHP_OPCACHE_VALIDATE_TIMESTAMPS=1 \
     XDEBUG_MODE=off

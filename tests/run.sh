@@ -10,6 +10,11 @@ for ext in bcmath intl pcntl pdo_mysql pdo_pgsql redis sockets zip "Zend OPcache
     echo "$modules" | grep -qx "$ext" || fail "missing extension $ext"
 done
 
+if [ "$TARGET" = media ]; then
+    for ext in gd imagick exif; do echo "$modules" | grep -qx "$ext" || fail "media image lacks $ext"; done
+    pass "media extensions present"
+fi
+
 if [ "$TARGET" = dev ]; then
     echo "$modules" | grep -qx xdebug || fail "xdebug missing in dev"
 else
@@ -119,7 +124,7 @@ calls=$(docker run --rm -v "$app:/app:ro" -e SYMFONY_CACHE_WARMUP=1 "$IMAGE" cat
 pass "SYMFONY_CACHE_WARMUP runs cache:warmup"
 rm -rf "$app"
 
-if [ "$TARGET" = prod ]; then
+if [ "$TARGET" != dev ]; then
     hc=$(docker inspect --format '{{json .Config.Healthcheck.Test}}' "$IMAGE")
     case "$hc" in *php-fpm-healthcheck*) pass "image declares a HEALTHCHECK" ;; *) fail "missing HEALTHCHECK, got $hc" ;; esac
 fi
