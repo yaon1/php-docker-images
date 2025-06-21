@@ -136,3 +136,11 @@ pass "OCI labels present"
 docker run --rm --entrypoint sh "$IMAGE" -c 'cd /tmp && printf "{\"require\":{}}" > composer.json && composer install --no-interaction -q' \
     || fail "composer install should work as the image user"
 pass "composer install works as the image user"
+
+[ "$(docker inspect --format '{{.Config.StopSignal}}' "$IMAGE")" = SIGQUIT ] || fail "stop signal should be SIGQUIT"
+pass "graceful stop signal"
+if [ "$VARIANT" = fpm ]; then
+    t=$(docker run --rm --entrypoint php-fpm "$IMAGE" -tt 2>&1 | awk '$4 == "process_control_timeout" { print $6 }')
+    [ "$t" = 20s ] || fail "process_control_timeout should default to 20s, got '$t'"
+    pass "process_control_timeout = 20s"
+fi
