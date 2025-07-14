@@ -24,6 +24,8 @@ fi
 
 docker run --rm --entrypoint composer "$IMAGE" --version >/dev/null || fail "composer missing"
 ini_is PHP_MEMORY_LIMIT=64M memory_limit 64M
+ini_default session.save_handler files
+ini_is PHP_SESSION_SAVE_HANDLER=redis session.save_handler redis
 fpm_conf_is "" access.log /dev/null
 fpm_conf_is FPM_ACCESS_LOG=/proc/self/fd/2 access.log /proc/self/fd/2
 fpm_conf_is "" pm.status_path /status
