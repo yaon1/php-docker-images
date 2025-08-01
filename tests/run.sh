@@ -24,6 +24,8 @@ fi
 
 docker run --rm --entrypoint composer "$IMAGE" --version >/dev/null || fail "composer missing"
 ini_is PHP_MEMORY_LIMIT=64M memory_limit 64M
+ini_default realpath_cache_size 4096K
+ini_is PHP_REALPATH_CACHE_SIZE=8M realpath_cache_size 8M
 ini_default session.save_handler files
 ini_is PHP_SESSION_SAVE_HANDLER=redis session.save_handler redis
 fpm_conf_is "" access.log /dev/null
