@@ -88,6 +88,8 @@ HEALTHCHECK --interval=10s --timeout=3s --start-period=10s \
 
 FROM base AS dev
 ENV PHP_OPCACHE_VALIDATE_TIMESTAMPS=1 \
-    XDEBUG_MODE=off
+    XDEBUG_MODE=off \
+    XDEBUG_CLIENT_HOST=host.docker.internal
 RUN install-php-extensions xdebug \
     && cp "$PHP_INI_DIR/php.ini-development" "$PHP_INI_DIR/php.ini"
+COPY dev/zz-xdebug.ini /usr/local/etc/php/conf.d/

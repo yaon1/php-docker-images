@@ -17,6 +17,8 @@ fi
 
 if [ "$TARGET" = dev ]; then
     echo "$modules" | grep -qx xdebug || fail "xdebug missing in dev"
+    ini_is XDEBUG_CLIENT_HOST=10.0.0.1 xdebug.client_host 10.0.0.1
+    ini_default xdebug.start_with_request trigger
 else
     echo "$modules" | grep -qx xdebug && fail "xdebug present in prod"
     [ "$(docker run --rm --entrypoint id "$IMAGE" -un)" = www-data ] || fail "prod must run as www-data"
