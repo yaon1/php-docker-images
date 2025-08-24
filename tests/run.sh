@@ -154,3 +154,9 @@ if [ "$VARIANT" = fpm ]; then
     [ "$t" = 20s ] || fail "process_control_timeout should default to 20s, got '$t'"
     pass "process_control_timeout = 20s"
 fi
+
+# Keep the production image lean; a jump usually means build tools leaked into a layer.
+size=$(docker image inspect --format '{{.Size}}' "$IMAGE")
+limit=$((350 * 1024 * 1024))
+[ "$TARGET" = prod ] && [ "$size" -gt "$limit" ] && fail "image is $((size / 1024 / 1024)) MB, over 350 MB"
+pass "image size $((size / 1024 / 1024)) MB"
