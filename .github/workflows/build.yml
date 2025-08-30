@@ -66,9 +66,12 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Push multi-arch
+        id: push
         if: github.event_name != 'pull_request'
         uses: docker/build-push-action@v6
         with:
+          sbom: true
+          provenance: mode=max
           context: .
           target: ${{ matrix.target }}
           build-args: |
