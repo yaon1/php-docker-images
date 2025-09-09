@@ -14,6 +14,7 @@ jobs:
       contents: read
       packages: write
       security-events: write
+      id-token: write # keyless cosign signing
     strategy:
       fail-fast: false
       matrix:
@@ -82,3 +83,10 @@ jobs:
           push: true
           tags: ghcr.io/${{ github.repository }}:${{ env.TAG }}
           cache-from: type=gha,scope=${{ env.TAG }}
+
+      - uses: sigstore/cosign-installer@v3
+        if: github.event_name != 'pull_request'
+
+      - name: Sign the image (keyless)
+        if: github.event_name != 'pull_request'
+        run: cosign sign --yes ghcr.io/${{ github.repository }}@${{ steps.push.outputs.digest }}
