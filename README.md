@@ -49,13 +49,23 @@ COPY --chown=www-data . /app
 
 FPM-образы отдают `/ping` и `/status`. `/status` сразу работает с [php-fpm-exporter](https://github.com/yaon1/php-fpm-exporter).
 
-## Переменные окружения
+## Переменные окружения: PHP
 
-| Переменная | prod | dev |
+| Переменная | По умолчанию | Директива |
 |---|---|---|
-| `PHP_MEMORY_LIMIT` | `256M` | `256M` |
-| `PHP_OPCACHE_VALIDATE_TIMESTAMPS` | `0` | `1` |
-| `XDEBUG_MODE` | — | `off` (`debug`, `coverage`, …) |
+| `PHP_MEMORY_LIMIT` | `256M` | `memory_limit` |
+| `PHP_UPLOAD_MAX_FILESIZE` / `PHP_POST_MAX_SIZE` | `32M` | размер загрузок |
+| `PHP_MAX_EXECUTION_TIME` | `30` | `max_execution_time` |
+| `PHP_MAX_INPUT_VARS` | `1000` | `max_input_vars` |
+| `PHP_DATE_TIMEZONE` | `UTC` | `date.timezone` |
+| `PHP_SESSION_SAVE_HANDLER` / `PHP_SESSION_SAVE_PATH` | `files` / `/tmp` | сессии, например `redis` + `tcp://redis:6379` |
+| `PHP_REALPATH_CACHE_SIZE` | `4096K` | кэш путей для фреймворков |
+| `PHP_OPCACHE_VALIDATE_TIMESTAMPS` | `0` (dev: `1`) | проверять изменения файлов |
+| `PHP_OPCACHE_MEMORY` | `128` | `opcache.memory_consumption`, МБ |
+| `PHP_OPCACHE_MAX_FILES` | `20000` | `opcache.max_accelerated_files` |
+| `PHP_OPCACHE_JIT` | `tracing` | `opcache.jit` (`disable`, `function`, …) |
+| `PHP_OPCACHE_PRELOAD` | — | путь к preload-скрипту |
+| `XDEBUG_MODE` / `XDEBUG_CLIENT_HOST` | `off` / `host.docker.internal` | только dev-образы |
 
 ## Локальная сборка и тесты
 
