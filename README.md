@@ -67,6 +67,23 @@ FPM-образы отдают `/ping` и `/status`. `/status` сразу раб�
 | `PHP_OPCACHE_PRELOAD` | — | путь к preload-скрипту |
 | `XDEBUG_MODE` / `XDEBUG_CLIENT_HOST` | `off` / `host.docker.internal` | только dev-образы |
 
+## Переменные окружения: PHP-FPM
+
+| Переменная | По умолчанию | |
+|---|---|---|
+| `FPM_PM` | `dynamic` | `static`, `dynamic` или `ondemand` |
+| `FPM_PM_MAX_CHILDREN` | `10` | Максимум воркеров; считайте как `память контейнера / память на запрос` |
+| `FPM_PM_START_SERVERS`, `FPM_PM_MIN_SPARE_SERVERS`, `FPM_PM_MAX_SPARE_SERVERS` | `2`, `1`, `3` | Должно выполняться `min ≤ start ≤ max`, иначе FPM не стартует |
+| `FPM_PM_MAX_REQUESTS` | `500` | Перезапуск воркера после N запросов (лечит утечки памяти) |
+| `FPM_REQUEST_TERMINATE_TIMEOUT` | `60s` | Убить зависший запрос |
+| `FPM_SLOWLOG_TIMEOUT` | `0s` (выкл.) | Стек медленных запросов в лог контейнера |
+| `FPM_LISTEN` | `9000` | Порт или unix-сокет (`/run/php/fpm.sock`) |
+| `FPM_STATUS_PATH` | `/status` | Страница статуса для [php-fpm-exporter](https://github.com/yaon1/php-fpm-exporter) |
+| `FPM_ACCESS_LOG` | `/dev/null` | `/proc/self/fd/2`, чтобы включить |
+| `FPM_SHUTDOWN_TIMEOUT` | `20s` | Сколько ждать текущие запросы при остановке |
+
+Контейнер останавливается сигналом `SIGQUIT`: FPM перестаёт принимать соединения и дожидается запросов в работе, поэтому деплой не обрывает их.
+
 ## Локальная сборка и тесты
 
 ```bash
