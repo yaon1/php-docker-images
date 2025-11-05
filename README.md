@@ -32,7 +32,7 @@ docker run --rm -it -e XDEBUG_MODE=debug -v "$PWD:/app" ghcr.io/yaon1/php-docker
 ```dockerfile
 FROM ghcr.io/yaon1/php-docker-images:8.4-fpm
 USER root
-RUN install-php-extensions gd imagick
+RUN install-php-extensions mongodb   # gd/imagick уже есть в тегах -media
 USER www-data
 COPY --chown=www-data . /app
 ```
@@ -132,9 +132,13 @@ services:
 ## Локальная сборка и тесты
 
 ```bash
-docker build --build-arg PHP_VERSION=8.3 --build-arg VARIANT=cli --target dev -t php:8.3-cli-dev .
-tests/run.sh php:8.3-cli-dev cli dev
+make test                          # 8.4 fpm prod: сборка и все проверки
+make test PHP=8.5 VARIANT=cli TARGET=dev
+docker buildx bake php84-fpm-media # готовые цели из docker-bake.hcl
+make lint                          # shellcheck для скриптов образа
 ```
+
+Тесты (`tests/run.sh`) запускают настоящие контейнеры: проверяют расширения, пользователя, каждую переменную окружения, хуки старта, `wait-for`, healthcheck и размер образа.
 
 ## Лицензия
 
