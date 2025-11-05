@@ -84,6 +84,33 @@ FPM-образы отдают `/ping` и `/status`. `/status` сразу раб�
 
 Контейнер останавливается сигналом `SIGQUIT`: FPM перестаёт принимать соединения и дожидается запросов в работе, поэтому деплой не обрывает их.
 
+## Старт контейнера
+
+Перед командой контейнер выполняет:
+
+1. встроенные шаги, если включены переменными:
+
+| Переменная | Что делает |
+|---|---|
+| `WAIT_FOR=db:5432,redis:6379` (+ `WAIT_FOR_TIMEOUT=60`) | Ждёт, пока зависимости начнут принимать соединения |
+| `LARAVEL_MIGRATE=1` / `LARAVEL_OPTIMIZE=1` | `php artisan migrate --force` / `php artisan optimize` |
+| `SYMFONY_MIGRATE=1` / `SYMFONY_CACHE_WARMUP=1` | `doctrine:migrations:migrate` / `cache:warmup` |
+
+2. ваши скрипты `*.sh` из `/docker-entrypoint.d` в порядке имён.
+
+Если скрипт падает, контейнер не стартует, и сломанная миграция не уходит в трафик. `SKIP_ENTRYPOINT_HOOKS=1` пропускает все шаги. Отдельно доступна утилита `wait-for host:port 30`.
+
+```yaml
+services:
+  app:
+    image: ghcr.io/yaon1/php-docker-images:8.4-fpm
+    environment:
+      WAIT_FOR: postgres:5432
+      LARAVEL_OPTIMIZE: 1
+    volumes:
+      - ./docker/entrypoint.d:/docker-entrypoint.d:ro
+```
+
 ## Локальная сборка и тесты
 
 ```bash
