@@ -37,17 +37,35 @@ USER www-data
 COPY --chown=www-data . /app
 ```
 
+## Теги
+
+`ghcr.io/yaon1/php-docker-images:<версия>-<вариант>[-debian][-dev|-media]`
+
+| Часть | Значения |
+|---|---|
+| версия | `8.2`, `8.3`, `8.4`, `8.5` |
+| вариант | `fpm`, `cli` |
+| `-debian` | Debian (glibc) вместо Alpine (musl), если нужны бинарники или расширения, плохо работающие с musl |
+| `-dev` | + Xdebug, `php.ini-development`, проверка изменений файлов |
+| `-media` | + gd, imagick, exif для обработки изображений |
+
 ## Что внутри
 
-| | prod | dev |
-|---|---|---|
-| Расширения | bcmath, intl, opcache (JIT), pcntl, pdo_mysql, pdo_pgsql, redis, sockets, zip | то же + xdebug |
-| Composer 2 | ✓ | ✓ |
-| Пользователь | `www-data` | `root` |
-| Проверка timestamps в OPcache | выкл | вкл |
-| `php-fpm-healthcheck` | ✓ | ✓ |
+| | prod | dev | media |
+|---|---|---|---|
+| Расширения | bcmath, intl, opcache (JIT), pcntl, pdo_mysql, pdo_pgsql, redis, sockets, zip | + xdebug | + gd, imagick, exif |
+| Composer 2 (домашняя папка доступна `www-data`) | ✓ | ✓ | ✓ |
+| Пользователь | `www-data` | `root` | `www-data` |
+| `HEALTHCHECK` | ✓ | — | ✓ |
+| `php-fpm-healthcheck`, `wait-for` | ✓ | ✓ | ✓ |
 
-FPM-образы отдают `/ping` и `/status`. `/status` сразу работает с [php-fpm-exporter](https://github.com/yaon1/php-fpm-exporter).
+Каждый опубликованный образ подписан cosign (keyless), содержит SBOM и provenance; публикация блокируется, если Trivy находит исправимые критические уязвимости.
+
+```bash
+cosign verify ghcr.io/yaon1/php-docker-images:8.4-fpm \
+  --certificate-identity-regexp 'https://github.com/yaon1/php-docker-images/' \
+  --certificate-oidc-issuer https://token.actions.githubusercontent.com
+```
 
 ## Переменные окружения: PHP
 
