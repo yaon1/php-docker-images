@@ -1,0 +1,30 @@
+# Symfony: FPM with preloading, Messenger worker, migrations as a one-off job.
+services:
+  app:
+    image: ghcr.io/yaon1/php-docker-images:8.4-fpm
+    volumes: ['./:/app']
+    environment: &env
+      APP_ENV: prod
+      WAIT_FOR: database:5432
+      SYMFONY_CACHE_WARMUP: 1
+      PHP_OPCACHE_PRELOAD: /app/config/preload.php
+      PHP_OPCACHE_MAX_FILES: 50000
+      DATABASE_URL: postgresql://app:secret@database:5432/app?serverVersion=17
+
+  migrate:
+    image: ghcr.io/yaon1/php-docker-images:8.4-cli
+    volumes: ['./:/app']
+    environment:
+      <<: *env
+      SYMFONY_MIGRATE: 1
+    command: ['true']
+
+  worker:
+    image: ghcr.io/yaon1/php-docker-images:8.4-cli
+    volumes: ['./:/app']
+    environment: *env
+    command: php bin/console messenger:consume async --time-limit=3600 --memory-limit=256M
+
+  database:
+    image: postgres:17-alpine
+    environment: { POSTGRES_USER: app, POSTGRES_PASSWORD: secret, POSTGRES_DB: app }
