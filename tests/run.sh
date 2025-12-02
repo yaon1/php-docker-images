@@ -160,3 +160,12 @@ size=$(docker image inspect --format '{{.Size}}' "$IMAGE")
 limit=$((350 * 1024 * 1024))
 [ "$TARGET" = prod ] && [ "$size" -gt "$limit" ] && fail "image is $((size / 1024 / 1024)) MB, over 350 MB"
 pass "image size $((size / 1024 / 1024)) MB"
+
+if [ "$VARIANT" = fpm ]; then
+    cid=$(docker run -d -e FPM_LISTEN=/run/php/fpm.sock "$IMAGE")
+    ok=no
+    for _ in 1 2 3 4 5 6 7 8 9 10; do docker exec "$cid" php-fpm-healthcheck 2>/dev/null && { ok=yes; break; }; sleep 1; done
+    docker rm -f "$cid" >/dev/null
+    [ "$ok" = yes ] || fail "healthcheck should follow FPM_LISTEN to the unix socket"
+    pass "healthcheck works with a unix socket"
+fi

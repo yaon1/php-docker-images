@@ -1,5 +1,12 @@
 #!/bin/sh
-# Exits 0 when the FPM master answers a ping on the local socket.
+# Exits 0 when the FPM master answers a ping. Follows FPM_LISTEN, so it also works
+# when FPM listens on a unix socket; FPM_HEALTHCHECK_ADDR overrides it.
 set -eu
+listen=${FPM_HEALTHCHECK_ADDR:-${FPM_LISTEN:-9000}}
+case "$listen" in
+    /*) addr=$listen ;;                  # unix socket path
+    *:*) addr=$listen ;;                 # host:port
+    *) addr=127.0.0.1:$listen ;;         # bare port
+esac
 SCRIPT_NAME=/ping SCRIPT_FILENAME=/ping REQUEST_METHOD=GET \
-    cgi-fcgi -bind -connect "${FPM_HEALTHCHECK_ADDR:-127.0.0.1:9000}" | grep -q pong
+    cgi-fcgi -bind -connect "$addr" | grep -q pong
