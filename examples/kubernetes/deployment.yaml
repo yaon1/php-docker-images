@@ -1,0 +1,35 @@
+# FPM + nginx in one pod over a unix socket, with graceful shutdown and probes.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app
+spec:
+  replicas: 3
+  selector: { matchLabels: { app: app } }
+  template:
+    metadata: { labels: { app: app } }
+    spec:
+      terminationGracePeriodSeconds: 30 # > FPM_SHUTDOWN_TIMEOUT
+      volumes:
+        - { name: socket, emptyDir: {} }
+      containers:
+        - name: php
+          image: ghcr.io/yaon1/php-docker-images:8.4-fpm
+          env:
+            - { name: FPM_LISTEN, value: /run/php/fpm.sock }
+            - { name: FPM_PM, value: static }
+            - { name: FPM_PM_MAX_CHILDREN, value: '12' }
+            - { name: FPM_SHUTDOWN_TIMEOUT, value: 20s }
+          volumeMounts: [{ name: socket, mountPath: /run/php }]
+          resources:
+            requests: { cpu: 250m, memory: 512Mi }
+            limits: { memory: 768Mi }
+          readinessProbe:
+            exec: { command: [sh, -c, 'FPM_HEALTHCHECK_ADDR=/run/php/fpm.sock php-fpm-healthcheck'] }
+          securityContext: { runAsNonRoot: true, allowPrivilegeEscalation: false }
+        - name: nginx
+          image: nginx:1.27-alpine
+          ports: [{ containerPort: 80 }]
+          volumeMounts: [{ name: socket, mountPath: /run/php }]
+          lifecycle:
+            preStop: { exec: { command: [sh, -c, 'sleep 5'] } } # let the endpoint leave the Service first
