@@ -25,7 +25,7 @@ spec:
             requests: { cpu: 250m, memory: 512Mi }
             limits: { memory: 768Mi }
           readinessProbe:
-            exec: { command: [sh, -c, 'FPM_HEALTHCHECK_ADDR=/run/php/fpm.sock php-fpm-healthcheck'] }
+            exec: { command: [php-fpm-healthcheck] } # follows FPM_LISTEN
           securityContext: { runAsNonRoot: true, allowPrivilegeEscalation: false }
         - name: nginx
           image: nginx:1.27-alpine
