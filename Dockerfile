@@ -32,6 +32,15 @@ RUN install-php-extensions \
        fi
 
 COPY --from=composer:2 /usr/bin/composer /usr/local/bin/composer
+
+# supercronic: cron for containers (logs to stdout, no root, reacts to SIGTERM).
+# Call it by absolute path: as PID 1 its process reaper re-executes argv[0].
+ARG SUPERCRONIC_VERSION=0.2.33
+ARG TARGETARCH
+RUN arch=${TARGETARCH:-$(uname -m | sed 's/x86_64/amd64/;s/aarch64/arm64/')} \
+    && curl -fsSL -o /usr/local/bin/supercronic \
+       "https://github.com/aptible/supercronic/releases/download/v${SUPERCRONIC_VERSION}/supercronic-linux-${arch}" \
+    && chmod +x /usr/local/bin/supercronic
 COPY rootfs/ /
 # Writable socket directory for FPM_LISTEN=/run/php/fpm.sock setups (nginx in the same pod).
 RUN mkdir -p /run/php /docker-entrypoint.d && chown www-data:www-data /run/php

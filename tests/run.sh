@@ -169,3 +169,10 @@ if [ "$VARIANT" = fpm ]; then
     [ "$ok" = yes ] || fail "healthcheck should follow FPM_LISTEN to the unix socket"
     pass "healthcheck works with a unix socket"
 fi
+
+crontab=$(mktemp)
+echo '* * * * * echo tick' > "$crontab"
+docker run --rm -v "$crontab:/etc/crontab:ro" --entrypoint /usr/local/bin/supercronic "$IMAGE" -test /etc/crontab >/dev/null 2>&1 \
+    || fail "supercronic should validate a crontab"
+pass "supercronic is available"
+rm -f "$crontab"
