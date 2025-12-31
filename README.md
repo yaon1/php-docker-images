@@ -129,6 +129,16 @@ services:
       - ./docker/entrypoint.d:/docker-entrypoint.d:ro
 ```
 
+## Планировщик
+
+В образе есть [supercronic](https://github.com/aptible/supercronic): cron для контейнеров с логами в stdout и корректной остановкой.
+
+```yaml
+scheduler:
+  image: ghcr.io/yaon1/php-docker-images:8.4-cli
+  command: ['/usr/local/bin/supercronic', '/app/docker/crontab']   # абсолютный путь обязателен
+```
+
 ## Локальная сборка и тесты
 
 ```bash
