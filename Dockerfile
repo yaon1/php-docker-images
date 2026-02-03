@@ -100,7 +100,10 @@ HEALTHCHECK --interval=10s --timeout=3s --start-period=10s \
     CMD if command -v php-fpm >/dev/null; then php-fpm-healthcheck; else php -v >/dev/null; fi
 
 FROM base AS dev
+# zz-app.ini loads after php.ini-development, so dev defaults are set through the same env vars.
 ENV PHP_OPCACHE_VALIDATE_TIMESTAMPS=1 \
+    PHP_DISPLAY_ERRORS=1 \
+    PHP_ZEND_ASSERTIONS=1 \
     XDEBUG_MODE=off \
     XDEBUG_CLIENT_HOST=host.docker.internal
 RUN install-php-extensions xdebug \

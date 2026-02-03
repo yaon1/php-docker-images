@@ -19,6 +19,8 @@ if [ "$TARGET" = dev ]; then
     echo "$modules" | grep -qx xdebug || fail "xdebug missing in dev"
     ini_is XDEBUG_CLIENT_HOST=10.0.0.1 xdebug.client_host 10.0.0.1
     ini_default xdebug.start_with_request trigger
+    ini_default display_errors 1
+    ini_default zend.assertions 1
 else
     echo "$modules" | grep -qx xdebug && fail "xdebug present in prod"
     [ "$(docker run --rm --entrypoint id "$IMAGE" -un)" = www-data ] || fail "prod must run as www-data"
@@ -28,11 +30,11 @@ docker run --rm --entrypoint composer "$IMAGE" --version >/dev/null || fail "com
 ini_is PHP_MEMORY_LIMIT=64M memory_limit 64M
 ini_default opcache.enable_cli 0
 ini_is PHP_OPCACHE_ENABLE_CLI=1 opcache.enable_cli 1
-ini_default zend.assertions -1
+[ "$TARGET" = dev ] || ini_default zend.assertions -1
 ini_is PHP_ZEND_ASSERTIONS=1 zend.assertions 1
 ini_default opcache.interned_strings_buffer 16
 ini_is PHP_OPCACHE_INTERNED_STRINGS=32 opcache.interned_strings_buffer 32
-ini_default display_errors 0
+[ "$TARGET" = dev ] || ini_default display_errors 0
 ini_is PHP_DISPLAY_ERRORS=1 display_errors 1
 ini_default realpath_cache_size 4096K
 ini_is PHP_REALPATH_CACHE_SIZE=8M realpath_cache_size 8M
