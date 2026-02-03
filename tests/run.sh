@@ -26,6 +26,8 @@ fi
 
 docker run --rm --entrypoint composer "$IMAGE" --version >/dev/null || fail "composer missing"
 ini_is PHP_MEMORY_LIMIT=64M memory_limit 64M
+ini_default opcache.enable_cli 0
+ini_is PHP_OPCACHE_ENABLE_CLI=1 opcache.enable_cli 1
 ini_default zend.assertions -1
 ini_is PHP_ZEND_ASSERTIONS=1 zend.assertions 1
 ini_default opcache.interned_strings_buffer 16
