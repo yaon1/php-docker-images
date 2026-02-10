@@ -186,3 +186,14 @@ docker run --rm -v "$crontab:/etc/crontab:ro" --entrypoint /usr/local/bin/superc
     || fail "supercronic should validate a crontab"
 pass "supercronic is available"
 rm -f "$crontab"
+
+if [ "$VARIANT" = fpm ]; then
+    # Apps read DATABASE_URL & co. from the environment; FPM must not clear it.
+    cid=$(docker run -d -e APP_SECRET_TEST=visible "$IMAGE")
+    sleep 2
+    seen=$(docker exec "$cid" sh -c 'echo "<?php echo getenv(\"APP_SECRET_TEST\");" > /tmp/env.php &&
+        SCRIPT_FILENAME=/tmp/env.php SCRIPT_NAME=/env.php REQUEST_METHOD=GET cgi-fcgi -bind -connect 127.0.0.1:9000 | tail -1')
+    docker rm -f "$cid" >/dev/null
+    [ "$seen" = visible ] || fail "container env should reach PHP in FPM requests, got '$seen'"
+    pass "environment variables reach FPM workers"
+fi
