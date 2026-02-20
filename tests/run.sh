@@ -28,6 +28,14 @@ fi
 
 docker run --rm --entrypoint composer "$IMAGE" --version >/dev/null || fail "composer missing"
 ini_is PHP_MEMORY_LIMIT=64M memory_limit 64M
+ini_default allow_url_fopen 1
+ini_is PHP_ALLOW_URL_FOPEN=0 allow_url_fopen 0
+[ "$TARGET" = dev ] || ini_default session.cookie_secure 1
+ini_default session.cookie_httponly 1
+ini_default session.use_strict_mode 1
+ini_is PHP_SESSION_COOKIE_SECURE=0 session.cookie_secure 0
+fpm_conf_is "" pm.process_idle_timeout 10
+fpm_conf_is FPM_PM_PROCESS_IDLE_TIMEOUT=30s pm.process_idle_timeout 30
 ini_default opcache.enable_cli 0
 ini_is PHP_OPCACHE_ENABLE_CLI=1 opcache.enable_cli 1
 [ "$TARGET" = dev ] || ini_default zend.assertions -1
