@@ -83,6 +83,12 @@ cosign verify ghcr.io/yaon1/php-docker-images:8.4-fpm \
 | `PHP_OPCACHE_MAX_FILES` | `20000` | `opcache.max_accelerated_files` |
 | `PHP_OPCACHE_JIT` | `tracing` | `opcache.jit` (`disable`, `function`, …) |
 | `PHP_OPCACHE_PRELOAD` | — | путь к preload-скрипту |
+| `PHP_OPCACHE_INTERNED_STRINGS` | `16` | `opcache.interned_strings_buffer`, МБ |
+| `PHP_OPCACHE_ENABLE_CLI` | `0` | OPcache для долгоживущих CLI-воркеров |
+| `PHP_DISPLAY_ERRORS` | `0` (dev: `1`) | `display_errors` |
+| `PHP_ZEND_ASSERTIONS` | `-1` (dev: `1`) | `zend.assertions` |
+| `PHP_SESSION_COOKIE_SECURE` | `1` (dev: `0`) | cookie сессии только по HTTPS; также всегда HttpOnly, SameSite=Lax, strict mode |
+| `PHP_ALLOW_URL_FOPEN` | `1` | `0` запрещает `file_get_contents('http://…')` |
 | `XDEBUG_MODE` / `XDEBUG_CLIENT_HOST` | `off` / `host.docker.internal` | только dev-образы |
 
 ## Переменные окружения: PHP-FPM
@@ -99,6 +105,9 @@ cosign verify ghcr.io/yaon1/php-docker-images:8.4-fpm \
 | `FPM_STATUS_PATH` | `/status` | Страница статуса для [php-fpm-exporter](https://github.com/yaon1/php-fpm-exporter) |
 | `FPM_ACCESS_LOG` | `/dev/null` | `/proc/self/fd/2`, чтобы включить |
 | `FPM_SHUTDOWN_TIMEOUT` | `20s` | Сколько ждать текущие запросы при остановке |
+| `FPM_PM_PROCESS_IDLE_TIMEOUT` | `10s` | Когда гасить простаивающие воркеры в `ondemand` |
+
+Переменные окружения контейнера доступны PHP-коду через `getenv()` и `$_ENV` (это проверяется тестом), поэтому `DATABASE_URL` и прочее можно передавать как обычно.
 
 Контейнер останавливается сигналом `SIGQUIT`: FPM перестаёт принимать соединения и дожидается запросов в работе, поэтому деплой не обрывает их.
 
