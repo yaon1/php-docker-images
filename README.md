@@ -148,6 +148,13 @@ scheduler:
   command: ['/usr/local/bin/supercronic', '/app/docker/crontab']   # абсолютный путь обязателен
 ```
 
+## Документация
+
+- [Как подобрать настройки FPM](docs/tuning-fpm.md)
+- [Переход с официального образа](docs/migrating-from-official.md)
+- [Если что-то не так](docs/troubleshooting.md)
+- Примеры: [Laravel](examples/laravel/compose.yaml), [Symfony](examples/symfony/compose.yaml), [Kubernetes](examples/kubernetes/deployment.yaml)
+
 ## Локальная сборка и тесты
 
 ```bash
