@@ -48,6 +48,7 @@ COPY --chown=www-data . /app
 | `-debian` | Debian (glibc) вместо Alpine (musl), если нужны бинарники или расширения, плохо работающие с musl |
 | `-dev` | + Xdebug, `php.ini-development`, проверка изменений файлов |
 | `-media` | + gd, imagick, exif для обработки изображений |
+| `-YYYYMMDD` | Неизменяемый тег конкретной еженедельной сборки, например `8.4-fpm-20261020` |
 
 ## Что внутри
 
