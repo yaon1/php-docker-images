@@ -175,8 +175,9 @@ fi
 
 # Keep the production image lean; a jump usually means build tools leaked into a layer.
 size=$(docker image inspect --format '{{.Size}}' "$IMAGE")
-limit=$((350 * 1024 * 1024))
-[ "$TARGET" = prod ] && [ "$size" -gt "$limit" ] && fail "image is $((size / 1024 / 1024)) MB, over 350 MB"
+# Debian's upstream base alone is ~500 MB, Alpine's ~100 MB.
+if docker run --rm --entrypoint test "$IMAGE" -f /etc/alpine-release; then max_mb=350; else max_mb=800; fi
+[ "$TARGET" = prod ] && [ "$size" -gt $((max_mb * 1024 * 1024)) ] && fail "image is $((size / 1024 / 1024)) MB, over $max_mb MB"
 pass "image size $((size / 1024 / 1024)) MB"
 
 if [ "$VARIANT" = fpm ]; then
