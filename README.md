@@ -120,6 +120,7 @@ cosign verify ghcr.io/yaon1/php-docker-images:8.4-fpm \
 
 | Переменная | Что делает |
 |---|---|
+| `REQUIRED_ENV=APP_KEY,DATABASE_URL` | Не запускаться, если какая-то из переменных пуста |
 | `WAIT_FOR=db:5432,redis:6379` (+ `WAIT_FOR_TIMEOUT=60`) | Ждёт, пока зависимости начнут принимать соединения |
 | `LARAVEL_MIGRATE=1` / `LARAVEL_OPTIMIZE=1` | `php artisan migrate --force` / `php artisan optimize` |
 | `SYMFONY_MIGRATE=1` / `SYMFONY_CACHE_WARMUP=1` | `doctrine:migrations:migrate` / `cache:warmup` |
