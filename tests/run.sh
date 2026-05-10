@@ -205,3 +205,9 @@ if [ "$VARIANT" = fpm ]; then
     [ "$seen" = visible ] || fail "container env should reach PHP in FPM requests, got '$seen'"
     pass "environment variables reach FPM workers"
 fi
+
+docker run --rm -e REQUIRED_ENV=APP_KEY,DATABASE_URL -e APP_KEY=x "$IMAGE" true 2>/dev/null && fail "missing DATABASE_URL should stop the container"
+out=$(docker run --rm -e REQUIRED_ENV=APP_KEY,DATABASE_URL -e APP_KEY=x "$IMAGE" true 2>&1 || true)
+case "$out" in *DATABASE_URL*) pass "REQUIRED_ENV names missing variables" ;; *) fail "REQUIRED_ENV message should name DATABASE_URL" ;; esac
+docker run --rm -e REQUIRED_ENV=APP_KEY -e APP_KEY=x "$IMAGE" true 2>/dev/null || fail "present variables should pass"
+pass "REQUIRED_ENV passes when variables are set"
