@@ -37,7 +37,8 @@ COPY --from=composer:2 /usr/bin/composer /usr/local/bin/composer
 # Call it by absolute path: as PID 1 its process reaper re-executes argv[0].
 ARG SUPERCRONIC_VERSION=0.2.33
 ARG TARGETARCH
-RUN arch=${TARGETARCH:-$(uname -m | sed 's/x86_64/amd64/;s/aarch64/arm64/')} \
+RUN arch=${TARGETARCH:-}; \
+    if [ -z "$arch" ]; then case "$(uname -m)" in x86_64) arch=amd64 ;; aarch64) arch=arm64 ;; *) arch=$(uname -m) ;; esac; fi \
     && curl -fsSL -o /usr/local/bin/supercronic \
        "https://github.com/aptible/supercronic/releases/download/v${SUPERCRONIC_VERSION}/supercronic-linux-${arch}" \
     && chmod +x /usr/local/bin/supercronic

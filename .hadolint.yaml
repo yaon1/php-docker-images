@@ -1,0 +1,5 @@
+ignored:
+  # Packages come from the distro snapshot of the weekly-rebuilt base image; pinning
+  # exact apk/apt versions breaks every time Alpine or Debian ships a security fix.
+  - DL3008
+  - DL3018
