@@ -21,6 +21,7 @@ if [ "$TARGET" = dev ]; then
     ini_default xdebug.start_with_request trigger
     ini_default display_errors 1
     ini_default zend.assertions 1
+    ini_default opcache.jit disable
 else
     echo "$modules" | grep -qx xdebug && fail "xdebug present in prod"
     [ "$(docker run --rm --entrypoint id "$IMAGE" -un)" = www-data ] || fail "prod must run as www-data"
@@ -52,7 +53,7 @@ fpm_conf_is "" access.log /dev/null
 fpm_conf_is FPM_ACCESS_LOG=/proc/self/fd/2 access.log /proc/self/fd/2
 fpm_conf_is "" pm.status_path /status
 fpm_conf_is FPM_STATUS_PATH=/-/fpm-status pm.status_path /-/fpm-status
-ini_default opcache.jit tracing
+[ "$TARGET" = dev ] || ini_default opcache.jit tracing
 ini_is PHP_OPCACHE_JIT=disable opcache.jit disable
 ini_default opcache.max_accelerated_files 20000
 ini_is PHP_OPCACHE_MAX_FILES=50000 opcache.max_accelerated_files 50000

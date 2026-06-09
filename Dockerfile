@@ -105,10 +105,12 @@ HEALTHCHECK --interval=10s --timeout=3s --start-period=10s \
 
 FROM base AS dev
 # zz-app.ini loads after php.ini-development, so dev defaults are set through the same env vars.
+# JIT is off: it is incompatible with Xdebug and only adds warnings while debugging.
 ENV PHP_OPCACHE_VALIDATE_TIMESTAMPS=1 \
     PHP_DISPLAY_ERRORS=1 \
     PHP_SESSION_COOKIE_SECURE=0 \
     PHP_ZEND_ASSERTIONS=1 \
+    PHP_OPCACHE_JIT=disable \
     XDEBUG_MODE=off \
     XDEBUG_CLIENT_HOST=host.docker.internal
 RUN install-php-extensions xdebug \
