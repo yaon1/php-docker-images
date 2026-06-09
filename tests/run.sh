@@ -29,6 +29,8 @@ fi
 
 docker run --rm --entrypoint composer "$IMAGE" --version >/dev/null || fail "composer missing"
 ini_is PHP_MEMORY_LIMIT=64M memory_limit 64M
+ini_default opcache.jit_buffer_size 64M
+ini_is PHP_OPCACHE_JIT_BUFFER=128M opcache.jit_buffer_size 128M
 ini_default allow_url_fopen 1
 ini_is PHP_ALLOW_URL_FOPEN=0 allow_url_fopen 0
 [ "$TARGET" = dev ] || ini_default session.cookie_secure 1
