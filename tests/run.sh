@@ -29,6 +29,8 @@ fi
 
 docker run --rm --entrypoint composer "$IMAGE" --version >/dev/null || fail "composer missing"
 ini_is PHP_MEMORY_LIMIT=64M memory_limit 64M
+ini_default disable_functions ""
+ini_is PHP_DISABLE_FUNCTIONS=exec,shell_exec disable_functions exec,shell_exec
 ini_default opcache.jit_buffer_size 64M
 ini_is PHP_OPCACHE_JIT_BUFFER=128M opcache.jit_buffer_size 128M
 ini_default allow_url_fopen 1
