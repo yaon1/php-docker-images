@@ -50,6 +50,7 @@ RUN mkdir -p /run/php /docker-entrypoint.d && chown www-data:www-data /run/php
 RUN mkdir -p /app /var/cache/composer /var/www/.composer && chown -R www-data:www-data /var/cache/composer /var/www/.composer /app
 ENV COMPOSER_ALLOW_SUPERUSER=1 \
     COMPOSER_HOME=/var/www/.composer \
+    COMPOSER_NO_INTERACTION=1 \
     COMPOSER_CACHE_DIR=/var/cache/composer \
     PHP_OPCACHE_VALIDATE_TIMESTAMPS=0 \
     PHP_MEMORY_LIMIT=256M \

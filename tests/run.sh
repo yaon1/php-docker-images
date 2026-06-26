@@ -217,3 +217,6 @@ out=$(docker run --rm -e REQUIRED_ENV=APP_KEY,DATABASE_URL -e APP_KEY=x "$IMAGE"
 case "$out" in *DATABASE_URL*) pass "REQUIRED_ENV names missing variables" ;; *) fail "REQUIRED_ENV message should name DATABASE_URL" ;; esac
 docker run --rm -e REQUIRED_ENV=APP_KEY -e APP_KEY=x "$IMAGE" true 2>/dev/null || fail "present variables should pass"
 pass "REQUIRED_ENV passes when variables are set"
+
+[ "$(docker run --rm --entrypoint printenv "$IMAGE" COMPOSER_NO_INTERACTION)" = 1 ] || fail "composer should run non-interactively"
+pass "composer is non-interactive"
