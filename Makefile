@@ -12,7 +12,7 @@ test: build
 	tests/run.sh $(IMAGE):$(PHP)-$(VARIANT)-$(TARGET) $(VARIANT) $(TARGET)
 
 lint:
-	shellcheck tests/*.sh rootfs/usr/local/bin/* rootfs/usr/local/lib/docker-php/hooks/*.sh
+	shellcheck -x tests/*.sh tests/cases/*.sh rootfs/usr/local/bin/* rootfs/usr/local/lib/docker-php/hooks/*.sh
 
 dev:
 	$(MAKE) test TARGET=dev
