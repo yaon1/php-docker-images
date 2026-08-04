@@ -1,0 +1,22 @@
+# Run a project's tests inside the same image that runs in production.
+name: Tests
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/yaon1/php-docker-images:8.4-cli-dev
+      options: --user root
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env: { POSTGRES_PASSWORD: secret }
+    env:
+      DATABASE_URL: postgresql://postgres:secret@postgres:5432/postgres
+      XDEBUG_MODE: coverage
+    steps:
+      - uses: actions/checkout@v4
+      - run: composer install --prefer-dist
+      - run: wait-for postgres:5432 30
+      - run: vendor/bin/phpunit --coverage-text
