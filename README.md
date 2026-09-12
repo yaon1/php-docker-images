@@ -90,6 +90,8 @@ cosign verify ghcr.io/yaon1/php-docker-images:8.4-fpm \
 | `PHP_ZEND_ASSERTIONS` | `-1` (dev: `1`) | `zend.assertions` |
 | `PHP_SESSION_COOKIE_SECURE` | `1` (dev: `0`) | cookie сессии только по HTTPS; также всегда HttpOnly, SameSite=Lax, strict mode |
 | `PHP_ALLOW_URL_FOPEN` | `1` | `0` запрещает `file_get_contents('http://…')` |
+| `PHP_DISABLE_FUNCTIONS` | — | например `exec,shell_exec,system` |
+| `PHP_OPCACHE_JIT_BUFFER` | `64M` | `opcache.jit_buffer_size`; в dev JIT выключен (несовместим с Xdebug) |
 | `XDEBUG_MODE` / `XDEBUG_CLIENT_HOST` | `off` / `host.docker.internal` | только dev-образы |
 
 ## Переменные окружения: PHP-FPM
@@ -155,6 +157,8 @@ scheduler:
 - [Как подобрать настройки FPM](docs/tuning-fpm.md)
 - [Переход с официального образа](docs/migrating-from-official.md)
 - [Если что-то не так](docs/troubleshooting.md)
+- [Расширения](docs/extensions.md) и [усиление безопасности](docs/hardening.md)
+- Ещё примеры: [nginx с unix-сокетом](examples/nginx-unix-socket.conf), [CI в dev-образе](examples/github-actions-ci.yml)
 - Примеры: [Laravel](examples/laravel/compose.yaml), [Symfony](examples/symfony/compose.yaml), [Kubernetes](examples/kubernetes/deployment.yaml)
 
 ## Локальная сборка и тесты
