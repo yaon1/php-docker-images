@@ -1,6 +1,11 @@
 #!/bin/sh
 # Sourced by tests/run.sh with IMAGE, VARIANT and TARGET set.
 ini_is PHP_MEMORY_LIMIT=64M memory_limit 64M
+[ "$TARGET" = dev ] || ini_default error_reporting 22527
+ini_is PHP_ERROR_REPORTING=32767 error_reporting 32767
+ini_default log_errors 1
+fpm_conf_is "" rlimit_files 4096
+fpm_conf_is FPM_RLIMIT_FILES=8192 rlimit_files 8192
 ini_default disable_functions ""
 ini_is PHP_DISABLE_FUNCTIONS=exec,shell_exec disable_functions exec,shell_exec
 ini_default opcache.jit_buffer_size 64M

@@ -27,10 +27,11 @@ fpm_ini_is() {
     pass "${1:-default} → $2=$3 (php-fpm)"
 }
 
-# fpm_conf_is ENV=VALUE KEY EXPECTED: pool setting as php-fpm -tt reports it (fpm images only)
+# fpm_conf_is ENV=VALUE KEY EXPECTED: pool setting as php-fpm -tt reports it (fpm images only).
+# Uses the last match: keys like rlimit_files appear in [global] first, then in the pool.
 fpm_conf_is() {
     [ "$VARIANT" = fpm ] || return 0
-    actual=$(docker run --rm ${1:+-e "$1"} --entrypoint php-fpm "$IMAGE" -tt 2>&1 | awk -v k="$2" '$4 == k { print $6; exit }')
+    actual=$(docker run --rm ${1:+-e "$1"} --entrypoint php-fpm "$IMAGE" -tt 2>&1 | awk -v k="$2" '$4 == k { v = $6 } END { print v }')
     [ "$actual" = "$3" ] || fail "${1:-default} should set $2 = $3, got '$actual'"
     pass "${1:-default} → $2 = $3"
 }
