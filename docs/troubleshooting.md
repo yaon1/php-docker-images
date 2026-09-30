@@ -10,3 +10,5 @@
 | Unhealthy при `FPM_LISTEN=/run/php/fpm.sock` | Обновите образ: healthcheck следует за `FPM_LISTEN` с версии 0.2 |
 | `supercronic: Failed to fork exec` | Запускайте по абсолютному пути `/usr/local/bin/supercronic` |
 | Xdebug не подключается | Проверьте `XDEBUG_MODE=debug`, порт 9003 в IDE и `XDEBUG_CLIENT_HOST` (на Linux — IP хоста) |
+| `JIT is incompatible with third party extensions` в dev | Обновите образ: в dev-тегах JIT выключен |
+| `required environment variables are not set` | Задайте перечисленные переменные или уберите их из `REQUIRED_ENV` |
