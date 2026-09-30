@@ -86,7 +86,8 @@ cosign verify ghcr.io/yaon1/php-docker-images:8.4-fpm \
 | `PHP_OPCACHE_PRELOAD` | — | путь к preload-скрипту |
 | `PHP_OPCACHE_INTERNED_STRINGS` | `16` | `opcache.interned_strings_buffer`, МБ |
 | `PHP_OPCACHE_ENABLE_CLI` | `0` | OPcache для долгоживущих CLI-воркеров |
-| `PHP_DISPLAY_ERRORS` | `0` (dev: `1`) | `display_errors` |
+| `PHP_DISPLAY_ERRORS` | `0` (dev: `1`) | `display_errors`; ошибки всегда пишутся в stderr контейнера |
+| `PHP_ERROR_REPORTING` | `22527` (dev: `32767`) | `error_reporting` (`E_ALL & ~E_DEPRECATED & ~E_STRICT` / `E_ALL`) |
 | `PHP_ZEND_ASSERTIONS` | `-1` (dev: `1`) | `zend.assertions` |
 | `PHP_SESSION_COOKIE_SECURE` | `1` (dev: `0`) | cookie сессии только по HTTPS; также всегда HttpOnly, SameSite=Lax, strict mode |
 | `PHP_ALLOW_URL_FOPEN` | `1` | `0` запрещает `file_get_contents('http://…')` |
@@ -109,6 +110,7 @@ cosign verify ghcr.io/yaon1/php-docker-images:8.4-fpm \
 | `FPM_ACCESS_LOG` | `/dev/null` | `/proc/self/fd/2`, чтобы включить |
 | `FPM_SHUTDOWN_TIMEOUT` | `20s` | Сколько ждать текущие запросы при остановке |
 | `FPM_PM_PROCESS_IDLE_TIMEOUT` | `10s` | Когда гасить простаивающие воркеры в `ondemand` |
+| `FPM_RLIMIT_FILES` | `4096` | Лимит открытых файлов на воркер |
 
 Переменные окружения контейнера доступны PHP-коду через `getenv()` и `$_ENV` (это проверяется тестом), поэтому `DATABASE_URL` и прочее можно передавать как обычно.
 
