@@ -11,12 +11,15 @@
 - OCI-метки, SBOM и provenance, подпись cosign, блокировка публикации при критичных CVE.
 - `docker-bake.hcl`, Makefile, руководства и примеры для Laravel, Symfony и Kubernetes.
 
+- `REQUIRED_ENV`, `PHP_DISABLE_FUNCTIONS`, `PHP_ALLOW_URL_FOPEN`, `PHP_ERROR_REPORTING`, `FPM_RLIMIT_FILES`, `PHP_OPCACHE_JIT_BUFFER`, датированные теги, hadolint в CI.
+
 ### Безопасность
 - Cookie сессий: `Secure`, `HttpOnly`, `SameSite=Lax`, strict mode.
 
 ### Исправлено
 - Healthcheck работает при прослушивании unix-сокета.
 - В dev-образах снова показываются ошибки и включены assertions.
+- В dev-образах выключен JIT: он несовместим с Xdebug и выдавал предупреждение.
 
 ## [0.1.0]
 
