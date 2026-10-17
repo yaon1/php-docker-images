@@ -154,6 +154,10 @@ scheduler:
   command: ['/usr/local/bin/supercronic', '/app/docker/crontab']   # абсолютный путь обязателен
 ```
 
+## Версии
+
+Схема тегов описана выше; изменения образов — в [CHANGELOG](CHANGELOG.md). Для продакшена закрепляйте датированный тег или digest.
+
 ## Документация
 
 - [Как подобрать настройки FPM](docs/tuning-fpm.md)
