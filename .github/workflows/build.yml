@@ -55,7 +55,7 @@ jobs:
       - run: tests/run.sh local/php:${{ env.TAG }} ${{ matrix.variant }} ${{ matrix.target }}
 
       - name: Trivy scan
-        uses: aquasecurity/trivy-action@0.28.0
+        uses: aquasecurity/trivy-action@v0.36.0
         with:
           image-ref: local/php:${{ env.TAG }}
           severity: CRITICAL,HIGH
@@ -64,7 +64,7 @@ jobs:
           output: trivy.sarif
 
       - name: Fail on fixable critical vulnerabilities
-        uses: aquasecurity/trivy-action@0.28.0
+        uses: aquasecurity/trivy-action@v0.36.0
         with:
           image-ref: local/php:${{ env.TAG }}
           severity: CRITICAL
